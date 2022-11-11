@@ -2,11 +2,11 @@
 
 
 module ValidRam (
-    input [`CACHE_INDEX_BITS] Address,
+    input [`CACHE_INDEX_BITS:0] Address,
     input                     ValidIn,
     input                     Write,
     input                     Reset,
-    input                     clk,
+    input                     Clk,
     output                    validOut
 );
 
