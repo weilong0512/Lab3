@@ -1,11 +1,11 @@
 `include "WaitStateCtr.sv"
 `include "def.svh"
 
-module Control (
+module CacheCTRL (
     input PStrobe, PRW,
     output PReady,
 
-    input Match, Valid,
+    input Hit,
     output Write,
     output CacheDataSelect,
     output PDataSelect,
@@ -18,7 +18,7 @@ module Control (
 wire [1:0] WaitStateCtrInput = `WAITSTATES - 1;
 reg LoadWaitStateCtr;
 WaitStateCtr WaitStateCtr(
-    .Load (LoadWaitStateCtr),
+    .Load (LoadWaitStateCtr), // should be modified
     .LoadValue (WaitStateCtrCarry),
     .Carry (WaitStateCtrCarry),
     .Clk (Clk)
@@ -66,7 +66,7 @@ always_comb begin : CTRL_STATE
         end
 
         STATE_READ:begin
-            if(Match && Valid) begin
+            if(Hit) begin
                 NextState = STATE_IDLE;
             end else begin
                 NextState = STATE_READMISS;
@@ -90,7 +90,7 @@ always_comb begin : CTRL_STATE
         end
 
         STATE_WRITE : begin
-            if (Match && Valid) begin
+            if (Hit) begin
                 NextState = STATE_WRITEHIT;
             end else begin
                 NextState = STATE_READMISS;
