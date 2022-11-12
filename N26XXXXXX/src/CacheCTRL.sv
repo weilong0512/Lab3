@@ -153,7 +153,7 @@ always_comb begin
         STATE_WRITEDATA: OutputVec(10'b0011001101);
     endcase
 
-    wire PReady = (PReadyEnable && Match && Valid) || Ready;
+    wire PReady = (PReadyEnable && Hit) || Ready;
 end
 
 

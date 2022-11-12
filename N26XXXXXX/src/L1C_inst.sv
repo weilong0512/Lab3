@@ -57,6 +57,7 @@ module L1C_inst(
 
 assign index = core_addr[`INDEX]
 
+
 	data_array_wrapper DA(
 		.A(index),
 		.DO(DA_out),
@@ -96,7 +97,7 @@ assign index = core_addr[`INDEX]
 	end
 
 	Comparator CMP(
-		.Tag1(TA_in),
+		.Tag1(core_addr[31:10]),
 		.Tag2(TA_out),
 		.Match(TA_match)
 	);
@@ -108,23 +109,35 @@ assign index = core_addr[`INDEX]
 	assign TA_write = WE;
 	assign VA_write = WE;
 
+	logic PDataSelect;
+	logic PDataOut;
+	logic PDataOE;
+	logic PData;
+	logic SysDataOE;
+	logic SysData;
+	logic CacheDataSelect; 
 	CacheCTRL control(
 		.PStrobe(core_req), 
 		.PRW(core_write),
 		.PReady(core_wait),
 		.Hit(Hit)
-		.Write(WE),
-		.CacheDataSelect(),
-		.PDataSelect(),
-		.SysDataOE(), 
-		.PDataOE(),
+		.Write(WE), 
+		.CacheDataSelect(CacheDataSelect),
+		.PDataSelect(PDataSelect),
+		.SysDataOE(SysDataOE), 
+		.PDataOE(PDataOE),
 		.SysStrobe(I_req), 
 		.SysRW(I_write),
 
 		.Reset(rst),
 		.Clk(clk)
 	);
-
+	assign I_in = SysDataOE ? core_in : 32'bz ;
+	assign PDataOut = PDataSelect ? DA_out : I_out ;
+	assign core_out = PDataOE ? PDataOut : 32'bz ;
+	assign DA_in = CacheDataSelect ? I_out : core_in ;
+	// I suppose that inout PDATA -> input core_in + output core_out;
+	// I suppose that inout SysData -> input I_out + output I_in;
 	
 
  

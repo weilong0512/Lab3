@@ -26,6 +26,7 @@
 
 `define READ 1'b1
 `define WRITE 1'b0
+`define WAITSTATES 2
 
 //Read Write data length
 `define WRITE_LEN_BITS 2
