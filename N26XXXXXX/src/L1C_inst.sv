@@ -112,9 +112,9 @@ assign index = core_addr[`INDEX]
 	logic PDataSelect;
 	logic PDataOut;
 	logic PDataOE;
-	logic PData;
+	// logic PData;
 	logic SysDataOE;
-	logic SysData;
+	// logic SysData;
 	logic CacheDataSelect; 
 	CacheCTRL control(
 		.PStrobe(core_req), 
