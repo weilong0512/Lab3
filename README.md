@@ -1,13 +1,13 @@
 # Lab3
 At this lab, we need to implement cache in a system with CPU in Lab 1、 AXI bus in Lab2.
 
-  SPEC:
+    SPEC:
     1、1KB
     2、128 bits per line
     3、Directed map
     4、hit -> write through、miss -> write around
 
-  In a one-way typical cache structure what we has to implement are:
+    In a one-way typical cache structure what we has to implement are:
 
     1、tag RAM
       the tag ram has 64 entries and 22bits for each entry
@@ -20,5 +20,8 @@ At this lab, we need to implement cache in a system with CPU in Lab 1、 AXI bus
 
     4、comparator
     5、control unit
+    
+    
+    ports naming :
+    ![Image-1](https://user-images.githubusercontent.com/71488907/201461375-39bf1c6d-5922-4a34-ad4e-6d95666a558e.jpg)
 
-  The cache controller should be a FSM.
