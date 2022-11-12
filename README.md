@@ -22,6 +22,6 @@ At this lab, we need to implement cache in a system with CPU in Lab 1、 AXI bus
     5、control unit
     
     
-    ports naming :
-    ![image](https://user-images.githubusercontent.com/71488907/201461475-80f87e69-b931-47fc-8c3d-9ce97b49bc74.jpg)
 
+
+![Image-1](https://user-images.githubusercontent.com/71488907/201462161-ec725b85-76d8-4350-9640-50124c5029b0.jpg)
