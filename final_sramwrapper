@@ -1,0 +1,593 @@
+`include "/home/weilong/VSD/final_system/include/axi_def.svh"
+
+module SRAM_wrapper (
+  input  logic                      clk_i,
+  input  logic                      rst_ni,
+
+  // AW channel
+  input  logic [AXISlaveIdWidth-1:0]  AWID_i,
+  input  logic [AXIAddrWidth-1:0] AWADDR_i,
+  input  logic [AXILenWidth-1:0]  AWLEN_i,
+  input  logic [AXISizeWidth-1:0] AWSIZE_i,
+  input  logic [AXIBurstWidth-1:0]  AWBURST_i,
+  input  logic                      AWVALID_i,
+  output logic                      AWREADY_o,
+
+  // Write channel
+  input  logic [AXIDataWidth-1:0] WDATA_i,
+  input  logic [AXIStrbWidth-1:0] WSTRB_i,
+  input  logic                      WLAST_i,
+  input  logic                      WVALID_i,
+  output logic                      WREADY_o,
+
+  // Write RESP
+  output logic [AXISlaveIdWidth-1:0]  BID_o,
+  output logic [1:0]                BRESP_o,
+  output logic                      BVALID_o,
+  input  logic                      BREADY_i,
+
+  // AR channel
+  input  logic [AXISlaveIdWidth-1:0]  ARID_i,
+  input  logic [AXIAddrWidth-1:0] ARADDR_i,
+  input  logic [AXILenWidth-1:0]  ARLEN_i,
+  input  logic [AXISizeWidth-1:0] ARSIZE_i,
+  input  logic [AXIBurstWidth-1:0]  ARBURST_i,
+  input  logic                      ARVALID_i,
+  output logic                      ARREADY_o,
+  // Read channel
+  output logic [AXISlaveIdWidth-1:0]  RID_o,
+  output logic [AXIDataWidth-1:0] RDATA_o,
+  output logic [1:0]                RRESP_o,
+  output logic                      RLAST_o,
+  output logic                      RVALID_o,
+  input  logic                      RREADY_i
+);
+
+  logic        CS;
+  logic        OE;
+  logic [3:0]  WEB;
+  logic [13:0] A;
+  logic [31:0] DI;
+  logic [31:0] DO;
+  localparam unsigned AXI_STRB_WORD  = 4'b1111;
+  localparam unsigned AXI_STRB_HWORD = 4'b0011;
+  localparam unsigned AXI_STRB_BYTE  = 4'b0001;
+  //READ WORD,HAIFWORD,BYTE
+  localparam unsigned AXI_SIZE_BYTE  = AXISizeWidth'('b000);
+  localparam unsigned AXI_SIZE_HWORD = AXISizeWidth'('b001);
+  localparam unsigned AXI_SIZE_WORD  = AXISizeWidth'('b010);
+  localparam unsigned AXI_BURST_INC  = 2'h1;
+
+  assign CS = 1'b1;
+  assign OE = 1'b1;
+
+`ifndef VERILATOR
+  SRAM i_SRAM (
+  .A0   (A[0]  ),
+  .A1   (A[1]  ),
+  .A2   (A[2]  ),
+  .A3   (A[3]  ),
+  .A4   (A[4]  ),
+  .A5   (A[5]  ),
+  .A6   (A[6]  ),
+  .A7   (A[7]  ),
+  .A8   (A[8]  ),
+  .A9   (A[9]  ),
+  .A10  (A[10] ),
+  .A11  (A[11] ),
+  .A12  (A[12] ),
+  .A13  (A[13] ),
+  .DO0  (DO[0] ),
+  .DO1  (DO[1] ),
+  .DO2  (DO[2] ),
+  .DO3  (DO[3] ),
+  .DO4  (DO[4] ),
+  .DO5  (DO[5] ),
+  .DO6  (DO[6] ),
+  .DO7  (DO[7] ),
+  .DO8  (DO[8] ),
+  .DO9  (DO[9] ),
+  .DO10 (DO[10]),
+  .DO11 (DO[11]),
+  .DO12 (DO[12]),
+  .DO13 (DO[13]),
+  .DO14 (DO[14]),
+  .DO15 (DO[15]),
+  .DO16 (DO[16]),
+  .DO17 (DO[17]),
+  .DO18 (DO[18]),
+  .DO19 (DO[19]),
+  .DO20 (DO[20]),
+  .DO21 (DO[21]),
+  .DO22 (DO[22]),
+  .DO23 (DO[23]),
+  .DO24 (DO[24]),
+  .DO25 (DO[25]),
+  .DO26 (DO[26]),
+  .DO27 (DO[27]),
+  .DO28 (DO[28]),
+  .DO29 (DO[29]),
+  .DO30 (DO[30]),
+  .DO31 (DO[31]),
+  .DI0  (DI[0] ),
+  .DI1  (DI[1] ),
+  .DI2  (DI[2] ),
+  .DI3  (DI[3] ),
+  .DI4  (DI[4] ),
+  .DI5  (DI[5] ),
+  .DI6  (DI[6] ),
+  .DI7  (DI[7] ),
+  .DI8  (DI[8] ),
+  .DI9  (DI[9] ),
+  .DI10 (DI[10]),
+  .DI11 (DI[11]),
+  .DI12 (DI[12]),
+  .DI13 (DI[13]),
+  .DI14 (DI[14]),
+  .DI15 (DI[15]),
+  .DI16 (DI[16]),
+  .DI17 (DI[17]),
+  .DI18 (DI[18]),
+  .DI19 (DI[19]),
+  .DI20 (DI[20]),
+  .DI21 (DI[21]),
+  .DI22 (DI[22]),
+  .DI23 (DI[23]),
+  .DI24 (DI[24]),
+  .DI25 (DI[25]),
+  .DI26 (DI[26]),
+  .DI27 (DI[27]),
+  .DI28 (DI[28]),
+  .DI29 (DI[29]),
+  .DI30 (DI[30]),
+  .DI31 (DI[31]),
+  .CK   (clk_i  ),
+  .WEB0 (WEB[0]),
+  .WEB1 (WEB[1]),
+  .WEB2 (WEB[2]),
+  .WEB3 (WEB[3]),
+  .OE   (OE    ),
+  .CS   (CS    )
+  .);
+`endif
+  // Slaves:
+  //   S0: ROM    (Read)       (0x0000_0000~0x0000_3fff)
+  //   S1: IM     (Read/Write) (0x0001_0000~0x0001_ffff)
+  //   S2: DM     (Read/Write) (0x0002_0000~0x0002_ffff)
+  //   S3: Sensor (Read/Write) (0x1000_0000~0x1000_03ff)
+  //   S4: DRAM   (Read/Write) (0x2000_0000~0x207f_ffff)
+  //   S5: AP     (Read/Write) (0x3000_0000~0x3000_0fff)
+  //
+  // FSM for -  Write Address Channel Slave
+  //
+  enum logic [3:0] {
+    INIT            = 4'd0,
+    WAIT            = 4'd1,
+    WRITE_WAIT      = 4'd2,
+    READ_WAIT       = 4'd3,
+    WRITE_RESP      = 4'd4,
+    WRITE_VALID     = 4'd5,
+    READ_VALID      = 4'd6,
+    READ_ERROR      = 4'd7,
+    READ_LAST       = 4'd8,
+    READ_VALID_WAIT = 4'd9,
+    READ_ERROR_WAIT = 4'd10
+  } STATE_q, STATE_d;
+
+  assign AWREADY_o = STATE_q == WAIT;
+  assign WREADY_o = STATE_q == WRITE_WAIT;
+  assign BVALID_o  = STATE_q == WRITE_RESP;
+  assign ARREADY_o = STATE_q == WAIT;
+  assign RVALID_o  = STATE_q == READ_VALID | STATE_q == READ_ERROR ;
+
+  wire aw_hs = AWVALID_i & AWREADY_o;
+  wire ar_hs = ARREADY_o & ARVALID_i;
+  wire w_hs  = WVALID_i & WREADY_o;
+
+  //==========AW buffer=============
+  axi_aw_slave_t aw_buf;
+
+  always_ff @(posedge clk_i or negedge rst_ni) begin
+    if (!rst_ni) begin
+      aw_buf.awid    <= AXISlaveIdWidth'('d0);
+      aw_buf.awaddr  <= AXIAddrWidth'('d0);
+      aw_buf.awlen   <= AXILenWidth'('d0);
+      aw_buf.awsize  <= AXISizeWidth'('d0);
+      aw_buf.awburst <= AXIBurstWidth'('d0);
+    end else begin
+      // read in data when handshaking
+      if(aw_hs) begin
+        aw_buf.awid    <= AWID_i;
+        aw_buf.awaddr  <= AWADDR_i;
+        aw_buf.awlen   <= AWLEN_i;
+        aw_buf.awsize  <= AWSIZE_i;
+        aw_buf.awburst <= AWBURST_i;
+      end else if (STATE_q==WRITE_VALID) begin
+        if(aw_buf.awburst != 2'b00) begin
+            aw_buf.awaddr <= aw_buf.awaddr + (32'd1 << aw_buf.awsize);
+        end
+      end
+    end
+  end
+  //==========AW buffer=============
+
+  //==========AR buffer=============
+  axi_ar_slave_t ar_buf;
+
+  always_ff @(posedge clk_i or negedge rst_ni) begin
+    if (!rst_ni) begin
+      ar_buf.arid    <= AXISlaveIdWidth'('d0);
+      ar_buf.araddr  <= AXIAddrWidth'('d0);
+      ar_buf.arlen   <= AXILenWidth'('d0);
+      ar_buf.arsize  <= AXISizeWidth'('d0);
+      ar_buf.arburst <= AXIBurstWidth'('d0);
+    end else begin
+      if(ar_hs) begin
+        ar_buf.arid    <= ARID_i;
+        ar_buf.araddr  <= ARADDR_i;
+        ar_buf.arlen   <= ARLEN_i + AXILenWidth'('d1);
+        ar_buf.arsize  <= ARSIZE_i;
+        ar_buf.arburst <= ARBURST_i;
+      end else if((STATE_q == READ_WAIT) && ar_buf.arburst == 2'd0) begin
+        ar_buf.arlen   <= ar_buf.arlen - AXILenWidth'('d1);
+      end else if ((STATE_q == READ_WAIT) && ar_buf.arburst == 2'd1) begin
+        ar_buf.araddr  <= ar_buf.araddr + (32'd1 << ar_buf.arsize);
+        ar_buf.arlen   <= ar_buf.arlen - AXILenWidth'('d1);
+      end
+    end
+  end
+  //==========AR buffer=============
+
+  //==========R buffer=============
+  axi_r_slave_t r_buf;
+
+  always_ff @(posedge clk_i or negedge rst_ni) begin
+    if (!rst_ni) begin
+      r_buf.rresp  <= AXIRespOkay;
+      r_buf.rlast  <= 1'b0;
+    end else begin
+      if(STATE_q == READ_WAIT) begin
+        if (ar_buf.arlen - 1'd1 == AXILenWidth'('d0)) begin
+          r_buf.rlast <= 1'b1;
+        end else begin
+          r_buf.rlast <= 1'b0;
+        end
+        if (ar_buf.araddr >= AXIStartAddrS1 && ar_buf.araddr <= AXIEndAddrS2
+            && ar_buf.arsize < 3'b011) begin  
+          r_buf.rresp <= AXIRespOkay;
+        end else if ((ar_buf.araddr <= AXIEndAddrS0
+                  // && ar_buf.araddr >= AXIStartAddrS1 && ar_buf.araddr <= AXIEndAddrS1
+                  // && ar_buf.araddr >= AXIStartAddrS2 && ar_buf.araddr <= AXIEndAddrS2
+                  && ar_buf.araddr >= AXIStartAddrS3 && ar_buf.araddr <= AXIEndAddrS3
+                  && ar_buf.araddr >= AXIStartAddrS4 && ar_buf.araddr <= AXIEndAddrS4
+                  && ar_buf.araddr >= AXIStartAddrS5 && ar_buf.araddr <= AXIEndAddrS5)
+                  || ar_buf.arsize >= 3'b011) begin
+          r_buf.rresp <= AXIRespSlaveErr;
+        end else begin
+          r_buf.rresp <= AXIRespDecodeErr;
+        end
+      end
+    end
+  end
+  //==========R buffer=============
+
+  //==========W buffer=============
+  axi_w_slave_t w_buf;
+
+  always_ff @(posedge clk_i or negedge rst_ni) begin
+    if (!rst_ni) begin
+      w_buf.wdata <= AXIDataWidth'('d0);
+      w_buf.wstrb <= AXIStrbWidth'('d0);
+      w_buf.wlast <= 1'b0;
+    end else begin
+      if(w_hs) begin
+        w_buf.wdata <= WDATA_i;
+        w_buf.wstrb <= WSTRB_i;
+        w_buf.wlast <= WLAST_i;
+      end
+    end
+  end
+  //==========W buffer=============
+
+  //==========B buffer=============
+  axi_b_slave_t b_buf;
+
+  always_ff @(posedge clk_i or negedge rst_ni) begin
+    if (!rst_ni) begin
+      b_buf.bid    <= AXISlaveIdWidth'('d0);
+      b_buf.bresp  <= 2'd0;
+    end else begin
+      if(STATE_q == WRITE_VALID) begin
+        if (aw_buf.awaddr >= AXIStartAddrS1 && aw_buf.awaddr <= AXIEndAddrS2
+          && aw_buf.awsize < 3'b011) begin
+          // OK if address is correct
+          b_buf.bresp <= AXIRespOkay;
+        end else if((aw_buf.awaddr <= AXIEndAddrS0
+          // && aw_buf.awaddr >= AXIStartAddrS1 && aw_buf.awaddr <= AXIEndAddrS1
+          // && aw_buf.awaddr >= AXIStartAddrS2 && aw_buf.awaddr <= AXIEndAddrS2
+          && aw_buf.awaddr >= AXIStartAddrS3 && aw_buf.awaddr <= AXIEndAddrS3
+          && aw_buf.awaddr >= AXIStartAddrS4 && aw_buf.awaddr <= AXIEndAddrS4
+          && aw_buf.awaddr >= AXIStartAddrS5 && aw_buf.awaddr <= AXIEndAddrS5)
+          || aw_buf.awsize >= 3'b011) begin
+          // ERR when wrong address
+          b_buf.bresp <= AXIRespSlaveErr;
+        end else begin
+          b_buf.bresp <= AXIRespDecodeErr;
+        end
+        b_buf.bid <= aw_buf.awid;
+      end
+    end
+  end
+  //==========W buffer=============
+
+  always_comb begin : RDATA_output
+    RDATA_o = 32'd0;
+    if(STATE_q == READ_ERROR | STATE_q == READ_VALID | STATE_q == READ_LAST) begin
+      case(ar_buf.arsize)
+        AXI_SIZE_WORD : begin
+          RDATA_o = DO;
+        end
+        AXI_SIZE_HWORD : begin
+          case(ar_buf.araddr[1:0])
+            2'b00 : begin
+              RDATA_o = {{16'd0},DO[15:0]};
+            end
+            2'b10 : begin
+              RDATA_o = {DO[31:16],{16'd0}};
+            end
+            default :begin
+              RDATA_o = 32'd0;
+            end
+          endcase
+        end
+        AXI_SIZE_BYTE : begin
+          case(ar_buf.araddr[1:0])
+            2'b00 : begin
+              RDATA_o = {{24'd0},DO[7:0]};
+            end
+            2'b01 : begin
+              RDATA_o = {{16'd0},DO[15:8],{8'd0}};
+            end
+            2'b10 : begin
+              RDATA_o = {{8'd0},DO[23:16],{16'd0}};
+            end
+            2'b11 : begin
+              RDATA_o = {DO[31:24],{24'd0}};
+            end
+            default :begin
+              RDATA_o = 32'd0;
+            end
+          endcase
+        end
+        default :begin
+          RDATA_o = 32'd0;
+        end
+      endcase
+    end
+  end
+
+  always_ff @(posedge clk_i or negedge rst_ni) begin
+    if (!rst_ni) begin
+      STATE_q         <= INIT;
+    end else begin
+      STATE_q         <= STATE_d;
+    end
+  end
+
+  always_comb begin   
+    STATE_d       = STATE_q;
+    BRESP_o         = AXIRespOkay;
+    RRESP_o         = AXIRespOkay;
+    RLAST_o         = 1'd0;
+    A             = 14'd0;
+    WEB           = 4'b1111;
+    DI            = 32'd0;
+    unique case (STATE_q)
+    INIT: begin
+      STATE_d         = WAIT;
+      BRESP_o         = AXIRespOkay;
+      RRESP_o         = AXIRespOkay;
+      RLAST_o         = 1'd0;
+      WEB             = 4'b1111;
+      DI              = 32'd0;
+    end
+    WAIT: begin
+      unique if (AWVALID_i) begin
+          STATE_d       = WRITE_WAIT;
+      end else if (ARVALID_i) begin
+          STATE_d       = READ_WAIT;
+      end else begin
+          STATE_d = WAIT;
+      end
+    end
+    WRITE_WAIT: begin
+        if (WVALID_i) begin
+            STATE_d     = WRITE_VALID;
+        end else begin
+            STATE_d = WRITE_WAIT;
+        end
+    end
+    WRITE_VALID: begin
+      if (w_buf.wlast) begin
+        STATE_d = WRITE_RESP;
+      end else begin
+        STATE_d = WRITE_WAIT;
+      end
+      if (aw_buf.awaddr >= AXIStartAddrS1 && aw_buf.awaddr <= AXIEndAddrS2
+          && aw_buf.awsize < 3'b011) begin
+        A = aw_buf.awaddr[15:2];
+        unique case (aw_buf.awburst)
+        2'b00: begin
+          unique case (w_buf.wstrb)
+          AXI_STRB_WORD: begin // SW
+            DI  = w_buf.wdata;
+            WEB = 4'b0000;
+          end
+          AXI_STRB_HWORD: begin // SH
+            case (aw_buf.awaddr[1:0])
+            2'b00: begin
+              DI  = { 16'd0, w_buf.wdata[15:0] };
+              WEB = 4'b1100;
+            end
+            2'b10: begin
+              DI  = { w_buf.wdata[15:0], 16'd0 };
+              WEB = 4'b0011;
+            end
+            default: begin
+              DI  = 32'd0;
+              WEB = 4'b1111;
+            end
+            endcase
+          end
+          AXI_STRB_BYTE: begin // SB
+            case (aw_buf.awaddr[1:0])
+              2'b00: begin
+                DI = { 24'd0, w_buf.wdata[7:0] };
+                WEB = 4'b1110;
+              end
+              2'b01: begin
+                DI = { 16'd0, w_buf.wdata[7:0], 8'd0 };
+                WEB = 4'b1101;
+              end
+              2'b10: begin
+                DI = { 8'd0, w_buf.wdata[7:0], 16'd0 };
+                WEB = 4'b1011;
+              end
+              2'b11: begin
+                DI = { w_buf.wdata[7:0], 24'd0 };
+                WEB = 4'b0111;
+              end
+            endcase
+          end
+          default: begin
+            A   = 14'd0;
+            DI  = 32'd0;
+            WEB = 4'b1111;
+          end
+          endcase
+        end       
+        AXI_BURST_INC: begin // INCR
+          unique case (w_buf.wstrb)
+          AXI_STRB_WORD: begin // SW
+            DI  = w_buf.wdata;
+            WEB = 4'b0000;
+          end
+          AXI_STRB_HWORD: begin // SH
+            case (aw_buf.awaddr[1:0])
+              2'b00: begin
+                DI = { 16'd0, w_buf.wdata[15:0] };
+                WEB = 4'b1100;
+              end
+              2'b10: begin
+                DI = { w_buf.wdata[15:0], 16'd0 };
+                WEB = 4'b0011;
+              end
+              default: begin
+                DI  = 32'd0;
+                WEB = 4'b1111;
+              end
+            endcase
+        end
+          AXI_STRB_BYTE: begin // SB
+            case(aw_buf.awaddr[1:0])
+              2'b00: begin
+                DI = { 24'd0, w_buf.wdata[7:0]};
+                WEB = 4'b1110;  
+              end
+              2'b01: begin
+                DI = { 16'd0, w_buf.wdata[7:0], 8'd0 };
+                WEB = 4'b1101;
+              end
+              2'b10: begin
+                DI = { 8'd0, w_buf.wdata[7:0], 16'd0 };
+                WEB = 4'b1011;
+              end
+              2'b11: begin
+                DI = { w_buf.wdata[7:0], 24'd0 };
+                WEB = 4'b0111;
+              end
+            endcase
+          end
+          default: begin
+            DI  = 32'd0;
+            WEB = 4'b1111;
+          end
+          endcase
+          end
+          default: begin
+            DI  = 32'd0;
+            WEB = 4'b1111;
+          end
+          endcase
+      end
+    end
+    WRITE_RESP: begin
+      BID_o     = b_buf.bid;
+      BRESP_o   = b_buf.bresp;
+      if (BREADY_i) begin
+        STATE_d = INIT;
+      end else begin
+        STATE_d = WRITE_RESP;
+      end
+    end
+    READ_WAIT: begin
+      if (ar_buf.araddr >= AXIStartAddrS1 && ar_buf.araddr <= AXIEndAddrS2
+          && ar_buf.arsize < 3'b011) begin
+        A = ar_buf.araddr[15:2];
+        STATE_d = READ_VALID;
+      end else begin
+        STATE_d = READ_ERROR;
+      end
+    end
+    READ_VALID: begin
+      RLAST_o  = r_buf.rlast;
+      RRESP_o  = r_buf.rresp;
+      RID_o   = ar_buf.arid;
+      if (RREADY_i && r_buf.rlast) begin
+        STATE_d = READ_LAST;
+      end else if (RREADY_i && !r_buf.rlast) begin
+        STATE_d = READ_WAIT;
+      end else begin
+        STATE_d = READ_VALID_WAIT;
+      end
+    end
+    READ_VALID_WAIT: begin
+      if (RREADY_i && r_buf.rlast) begin
+        STATE_d = READ_LAST;
+      end else if (RREADY_i && !r_buf.rlast) begin
+        STATE_d = READ_WAIT;
+      end else begin
+        STATE_d = READ_VALID_WAIT;
+      end
+    end
+    READ_ERROR: begin
+      RRESP_o  = r_buf.rresp;
+      RID_o    = ar_buf.arid;
+      RLAST_o  = r_buf.rlast;
+      if (RREADY_i && r_buf.rlast) begin
+        STATE_d = READ_LAST;
+      end else if (RREADY_i && !r_buf.rlast) begin
+        STATE_d = READ_WAIT;
+      end else begin
+        STATE_d = READ_ERROR_WAIT;
+      end
+    end
+    READ_ERROR_WAIT: begin
+      if (RREADY_i && r_buf.rlast) begin
+        STATE_d = READ_LAST;
+      end else if(RREADY_i && !r_buf.rlast) begin
+        STATE_d = READ_WAIT;
+      end else begin
+        STATE_d = READ_ERROR_WAIT;
+      end
+    end
+    READ_LAST: begin
+      RLAST_o   = r_buf.rlast;
+      STATE_d = INIT;
+    end
+    default: begin
+      STATE_d = INIT;
+    end
+    endcase
+  end
+endmodule
